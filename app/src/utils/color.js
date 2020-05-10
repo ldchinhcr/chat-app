@@ -9,6 +9,7 @@ import {
   blueGrey,
   cyan,
 } from "@material-ui/core/colors";
+import PropTypes from 'prop-types';
 
 export const useStyles = makeStyles((theme) => ({
   root: {
@@ -50,3 +51,7 @@ export const useStyles = makeStyles((theme) => ({
     backgroundColor: cyan[500],
   },
 }));
+
+useStyles.propTypes = {
+  classes: PropTypes.object.isRequired,
+};

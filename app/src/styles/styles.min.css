@@ -66,6 +66,8 @@ label {
 
 .chat {
   display: flex;
+  width: 100vw;
+  height: 100vh;
 }
 .chat__sidebar {
   height: 100vh;
