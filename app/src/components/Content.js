@@ -1,10 +1,11 @@
 import React, { useRef, useEffect } from "react";
 import { DisplayMapFC } from "./Map";
+import {EmojiReg} from "../utils/EmojsRegex";
 import { useSelector } from "react-redux";
 import ReactPlayer from "react-player";
-import { useStyles } from "../utils/color";
 import Avatar from "@material-ui/core/Avatar";
-import {EmojiReg} from "../utils/EmojsRegex";
+import { useStyles } from "../utils/color";
+
 
 let moment = require("moment");
 
@@ -63,9 +64,9 @@ export default function Content() {
               <div className={classes.root}>
                 <Avatar
                   alt={el.user.name}
-                  src="/broken-image.jpg"
                   className={objChosen}
-                />
+                  >
+                  </Avatar>
               </div>
             </div>
             <div className="message_meta">
@@ -122,7 +123,8 @@ export default function Content() {
                 alt={el.username.name}
                 src="/broken-image.jpg"
                 className={objChosen}
-              />
+              >
+              </Avatar>
             </div>
           </div>
           <div className="message_meta">

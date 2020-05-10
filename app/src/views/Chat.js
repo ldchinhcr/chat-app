@@ -13,7 +13,8 @@ import data from "emoji-mart/data/facebook.json";
 import { NimblePicker, emojiIndex } from "emoji-mart";
 import "emoji-mart/css/emoji-mart.css";
 import ReactTextareaAutocomplete from "@webscopeio/react-textarea-autocomplete";
-import {getByNative} from "../utils/regexCheckEmoji";
+import { getByNative } from "../utils/regexCheckEmoji";
+import CssBaseline from "@material-ui/core/CssBaseline";
 
 const useStyles = makeStyles((theme) => ({
   button: {
@@ -131,6 +132,7 @@ export default function Chat() {
 
   return (
     <div className="chat">
+      <CssBaseline />
       <Sidebar id="sidebar" />
 
       <div className="chat__main">
