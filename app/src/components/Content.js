@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect } from "react";
 import { DisplayMapFC } from "./Map";
 import { useSelector } from "react-redux";
 import ReactPlayer from "react-player";
@@ -9,13 +9,9 @@ let moment = require("moment");
 
 export default function Content() {
   const classes = useStyles();
-  let [nothingValue, setValue] = useState(0);
   const divRef = useRef(null);
   useEffect(() => {
     divRef.current.scrollIntoView({ behavior: "smooth" });
-    window.setTimeout(()=> {
-      setValue(value => ++value)
-    },3000)
   });
   const messages = useSelector((state) => state.messages);
   const user = useSelector((state) => state.user);

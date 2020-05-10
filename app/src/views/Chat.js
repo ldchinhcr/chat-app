@@ -26,6 +26,7 @@ export default function Chat() {
   const user = useSelector((state) => state.user);
   let [input, setInput] = useState("");
   let [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  let [nothingValue, setValue] = useState(0);
   const history = useHistory();
   const dispatch = useDispatch();
 
@@ -35,6 +36,9 @@ export default function Chat() {
         dispatch({ type: "SET_ROOM", payload: room });
       });
     }
+    window.setTimeout(()=> {
+      setValue(value => ++value)
+    },2000)
   }, []);
 
   const onChange = (e) => {
