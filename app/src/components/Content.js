@@ -39,7 +39,7 @@ export default function Content() {
             {el.isCoords ? (
                 <DisplayMapFC coords={JSON.parse(el.chat)} />
             ) : el.isUrl ? (
-                <a href={el.chat}>{el.chat}</a>
+                <a href={el.chat} target="_blank">{el.chat}</a>
             ) : el.isImg ? (
                 <img
                   src={el.chat}
@@ -85,7 +85,7 @@ export default function Content() {
             {el.isCoords ? (
                 <DisplayMapFC coords={JSON.parse(el.message)} />
             ) : el.isUrl ? (
-                <a href={el.message}>{el.message}</a>
+                <a href={el.message} target="_blank">{el.message}</a>
             ) : el.isImg ? (
                 <img
                   src={el.message}
