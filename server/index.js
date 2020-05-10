@@ -41,7 +41,7 @@ io.on("connection", async (socket) => {
       await server.joinRoom(obj.chatroom);
       const messages = await Server.readMessages(server.user.chatroom._id);
       socket.emit("selectedRoom", server.user.chatroom);
-      socket.emit("allRoom", await Server.allRoom());
+      io.emit("allRoom", await Server.allRoom());
       socket.join(server.user.chatroom._id);
       socket.emit("messages", server.sendWelcomeMessage());
       socket.emit("setUser", server.user);
@@ -138,6 +138,7 @@ io.on("connection", async (socket) => {
         .to(server.user.chatroom._id)
         .emit("messages", server.sendUserLeaveMessage());
       socket.leave(server.user.chatroom._id);
+      io.emit("allRoom", await Server.allRoom());
     } catch (err) {
       console.log(err.message);
     }
