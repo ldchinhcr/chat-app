@@ -40,7 +40,6 @@ io.on("connection", async (socket) => {
       );
       await server.joinRoom(obj.chatroom);
       const messages = await Server.readMessages(server.user.chatroom._id);
-      console.log(messages)
       socket.emit("selectedRoom", server.user.chatroom);
       socket.emit("allRoom", await Server.allRoom());
       socket.join(server.user.chatroom._id);

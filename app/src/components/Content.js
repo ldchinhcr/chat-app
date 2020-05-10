@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import ReactPlayer from "react-player";
 import { useStyles } from "../utils/color";
 import Avatar from "@material-ui/core/Avatar";
+import {EmojiReg} from "../utils/EmojsRegex";
 
 let moment = require("moment");
 
@@ -20,43 +21,53 @@ export default function Content() {
   const html =
     messages &&
     messages.map((el) => {
-      console.log(el)
       const keysColor = Object.keys(classes);
       const keyChosen = keysColor.filter((i) => i === el.user.avatarColor);
       const objChosen = keyChosen.map((i) => classes[i])[0];
+      let textToHTML;
+      if (!el.isUrl && !el.isCoords && !el.isImg && !el.isYTube) {
+        textToHTML = EmojiReg(el.chat);
+      }
       return (
         <div
           className={user._id === el.user.id ? "message right" : "message left"}
         >
           <div className="message__name">{el.user.name}</div>
           <div className="data">
-          <div className="avatar-name">
-          <div className="content-msg">
-            {el.isCoords ? (
-                <DisplayMapFC coords={JSON.parse(el.chat)} />
-            ) : el.isUrl ? (
-                <a href={el.chat} target="_blank">{el.chat}</a>
-            ) : el.isImg ? (
-                <img
-                  src={el.chat}
-                  width="400px"
-                  height="auto"
-                  alt={el.chat}
-                ></img>
-            ) : el.isYTube ? (
-                <ReactPlayer url={el.chat} width="400px" height="400px" loop />
-            ) : (
-              <span>{el.chat}</span>
-            )}
+            <div className="avatar-name">
+              <div className="content-msg">
+                {el.isCoords ? (
+                  <DisplayMapFC coords={JSON.parse(el.chat)} />
+                ) : el.isUrl ? (
+                  <a href={el.chat} target="_blank" rel="noopener noreferrer">
+                    {el.chat}
+                  </a>
+                ) : el.isImg ? (
+                  <img
+                    src={el.chat}
+                    width="400px"
+                    height="auto"
+                    alt={el.chat}
+                  ></img>
+                ) : el.isYTube ? (
+                  <ReactPlayer
+                    url={el.chat}
+                    width="400px"
+                    height="400px"
+                    loop
+                  />
+                ) : (
+                  <span>{textToHTML}</span>
+                )}
+              </div>
+              <div className={classes.root}>
+                <Avatar
+                  alt={el.user.name}
+                  src="/broken-image.jpg"
+                  className={objChosen}
+                />
+              </div>
             </div>
-            <div className={classes.root}>
-            <Avatar
-              alt={el.user.name}
-              src="/broken-image.jpg"
-              className={objChosen}
-            />
-          </div>
-          </div>
             <div className="message_meta">
               {moment(el.createdAt).format("D/MM/YY - h:mm A")}
             </div>
@@ -68,6 +79,10 @@ export default function Content() {
     const keysColor = Object.keys(classes);
     const keyChosen = keysColor.filter((i) => i === el.username.avatarColor);
     const objChosen = keyChosen.map((i) => classes[i])[0];
+    let textToHTML;
+    if (!el.isUrl && !el.isCoords && !el.isImg && !el.isYTube) {
+      textToHTML = EmojiReg(el.message);
+    }
     return (
       <div
         className={
@@ -77,28 +92,30 @@ export default function Content() {
         <div className="message__name">{el.username.name}</div>
         <div className="data">
           <div className="avatar-name">
-          <div className="content-msg">
-            {el.isCoords ? (
+            <div className="content-msg">
+              {el.isCoords ? (
                 <DisplayMapFC coords={JSON.parse(el.message)} />
-            ) : el.isUrl ? (
-                <a href={el.message} target="_blank">{el.message}</a>
-            ) : el.isImg ? (
+              ) : el.isUrl ? (
+                <a href={el.message} target="_blank" rel="noopener noreferrer">
+                  {el.message}
+                </a>
+              ) : el.isImg ? (
                 <img
                   src={el.message}
                   width="400px"
                   height="auto"
                   alt={el.message}
                 ></img>
-            ) : el.isYTube ? (
+              ) : el.isYTube ? (
                 <ReactPlayer
                   url={el.message}
                   width="400px"
                   height="400px"
                   loop
                 />
-            ) : (
-              <span>{el.message}</span>
-            )}
+              ) : (
+                <span>{textToHTML}</span>
+              )}
             </div>
             <div className={classes.root}>
               <Avatar

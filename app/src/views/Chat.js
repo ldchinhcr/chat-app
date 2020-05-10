@@ -13,6 +13,7 @@ import data from "emoji-mart/data/facebook.json";
 import { NimblePicker, emojiIndex } from "emoji-mart";
 import "emoji-mart/css/emoji-mart.css";
 import ReactTextareaAutocomplete from "@webscopeio/react-textarea-autocomplete";
+import {getByNative} from "../utils/regexCheckEmoji";
 
 const useStyles = makeStyles((theme) => ({
   button: {
@@ -36,13 +37,18 @@ export default function Chat() {
         dispatch({ type: "SET_ROOM", payload: room });
       });
     }
-    window.setTimeout(()=> {
-      setValue(value => ++value)
-    },2000)
+    window.setTimeout(() => {
+      setValue((value) => ++value);
+    }, 2000);
   }, []);
 
   const onChange = (e) => {
-    setInput(e.target.value);
+    const emoji = getByNative(e.target.value);
+    if (emoji) {
+      setInput(emoji.native);
+    } else {
+      setInput(e.target.value);
+    }
   };
 
   const onHandleSubmit = () => {
@@ -153,10 +159,10 @@ export default function Chat() {
             onClick={toggleEmojiPicker}
           >
             <Smile />
-            </button>
+          </button>
           <form id="message-form">
             <ReactTextareaAutocomplete
-            className="message-input"
+              className="message-input"
               name="message"
               value={input}
               loadingComponent={() => <span>Loading</span>}
@@ -168,11 +174,11 @@ export default function Chat() {
                 ":": {
                   dataProvider: (token) =>
                     emojiIndex.search(token).map((o) => ({
-                      colons: o.colons,
+                      name: o.name,
                       native: o.native,
                     })),
-                  component: ({ entity: { native, colons } }) => (
-                    <div>{`${colons} ${native}`}</div>
+                  component: ({ entity: { native, name } }) => (
+                    <div>{`${name} ${native}`}</div>
                   ),
                   output: (item) => `${item.native}`,
                 },

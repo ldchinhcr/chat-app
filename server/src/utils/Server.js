@@ -145,7 +145,6 @@ class Server {
     }
 
     async chat(obj) {
-      console.log(this.user)
       const chat = await Message.create({
         message: obj,
         username: {
