@@ -1,6 +1,7 @@
 const User = require("../models/user");
 const ChatRoom = require("../models/chatroom");
 const Message = require('../models/message');
+const APIFeatures = require("./apiFeatures");
 
 
 class Server {
@@ -57,9 +58,14 @@ class Server {
       return chatroom;
     }
 
-    static async readMessages(rId) {
-      const messages = await Message.find({chatroom: rId})
-      return messages;
+    static async readMessages(rId, queryStr) {
+      const msgQuery = new APIFeatures(Message.find({chatroom: rId}), queryStr).sort().paginate();
+      const messages = await msgQuery.query;
+      if (messages.length >= 1) {
+        const renderMsg = messages.sort((a,b) => a.createdAt - b.createdAt);
+        return renderMsg;
+      }
+      throw new Error(`All messages has been fetched!`)
     }
 
     sendWelcomeMessage() {

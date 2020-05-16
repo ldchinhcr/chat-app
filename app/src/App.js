@@ -27,9 +27,7 @@ function App() {
     })
     socket.on("messages", obj => {
       dispatch({ type: "SET_MESSAGES", payload: obj });
-        window.setTimeout(()=> {
-          return () => setValue(value => ++value);
-        }, 1000)
+
       window.setTimeout(()=> {
         return () => setValue(value => ++value);
       },500)

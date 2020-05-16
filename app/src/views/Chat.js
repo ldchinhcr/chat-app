@@ -66,6 +66,9 @@ export default function Chat() {
       setInput("");
       setAttribute(false);
     });
+    window.setTimeout(() => {
+      setValue((value) => ++value);
+    }, 2000);
   };
 
   const onSendLocation = (e) => {
@@ -96,6 +99,9 @@ export default function Chat() {
       setAttribute(false);
     }, 1500);
     setInput("");
+    window.setTimeout(() => {
+      setValue((value) => ++value);
+    }, 2000);
   };
 
   function toggleEmojiPicker() {

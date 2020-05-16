@@ -33,11 +33,9 @@ export const EmojiReg = (text) => {
         partsOfTheMessageText.push(matchArr[0]);
       }
     }
-    console.log(partsOfTheMessageText);
     const finalPartOfTheText = text.substring(lastOffset, text.length);
     if (finalPartOfTheText.length)
       partsOfTheMessageText.push(finalPartOfTheText);
-    console.log('part',partsOfTheMessageText)
     return (
         <span>
         {partsOfTheMessageText ? partsOfTheMessageText.map((p) => (

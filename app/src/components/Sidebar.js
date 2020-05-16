@@ -22,15 +22,18 @@ export default function Sidebar() {
   }
 
   const emptyMsg = () => {
-    
     dispatch({ type: "SET_EMPTYMESSAGES", payload: [] })
   }
 
   const onChooseRoom = (id) => {
-    const obj = {username: user.name, chatroom: id}
-    socket.emit("join", obj, err => {
-      if (err) console.log(err)
-    })
+    const obj = {username: user.name, chatroom: id, page: 1, limit: 20}
+    dispatch({type: "LEAVE_ROOM"});
+    window.setTimeout(() => {
+      socket.emit("join", obj, err => {
+        if (err) console.log(err)
+      })
+    }, 200)
+
 }
 
 const backToLoginPage = (e) => {

@@ -39,21 +39,35 @@ io.on("connection", async (socket) => {
         obj
       );
       await server.joinRoom(obj.chatroom);
-      const messages = await Server.readMessages(server.user.chatroom._id);
+      const search = {page: obj.page, limit: obj.limit}
       socket.emit("selectedRoom", server.user.chatroom);
       io.emit("allRoom", await Server.allRoom());
       socket.join(server.user.chatroom._id);
       socket.emit("messages", server.sendWelcomeMessage());
       socket.emit("setUser", server.user);
-      io.to(server.user.chatroom._id).emit("oldmessages", messages);
       socket.broadcast
-        .to(server.user.chatroom._id)
-        .emit("messages", server.sendNewUserJoinNotification());
+      .to(server.user.chatroom._id)
+      .emit("messages", server.sendNewUserJoinNotification());
+      const messages = await Server.readMessages(obj.chatroom, search);
+      io.to(server.user.chatroom._id).emit("oldmessages", messages);
       callback();
     } catch (err) {
       callback({ ok: false, error: err.message });
     }
   });
+
+  socket.on("fetchOldMsg", async (obj, callback) => {
+    try {
+    const server = await Server.checkUser(socket.id)
+    const search = {page: obj.page, limit: obj.limit}
+    const messages = await Server.readMessages(server.user.chatroom._id, search);
+    io.to(server.user.chatroom._id).emit("oldmessages", messages);
+    callback();
+  } catch (err) {
+    callback({ ok: false, error: err.message });
+  }
+  })
+
   socket.on("sendInputMsg", async (obj, callback) => {
     try {
       const server = await Server.checkUser(socket.id);

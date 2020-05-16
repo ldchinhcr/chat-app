@@ -35,6 +35,7 @@ export default function Login(props) {
   ];
   const dispatch = useDispatch();
   let allroom = useSelector((state) => state.room);
+  const page = useSelector(state => state.page);
   let [user, setUser] = useState(null);
   let [createRoom, setCreateRoom] = useState(null);
   let [chatroom, setChatRoom] = useState("");
@@ -60,7 +61,7 @@ export default function Login(props) {
     setAttribute(true);
     e.preventDefault();
     const randomIndexColor = Math.floor(Math.random()*colors.length);
-    const userSubmit = {...user, avatarColor: colors[randomIndexColor]}
+    const userSubmit = {...user, avatarColor: colors[randomIndexColor], page: page, limit: 20}
     socket.emit("join", userSubmit, (err) => {
       if (err) return console.log(err);
     });

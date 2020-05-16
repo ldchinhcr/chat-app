@@ -12,7 +12,9 @@ const initialState = {
   messages: [],
   user: null,
   room: [],
-  currentRoom: null
+  currentRoom: null,
+  page: 1,
+  loadMore: true
 };
 
 function userChat(state = initialState, action) {
@@ -38,7 +40,7 @@ function userChat(state = initialState, action) {
       return nextState;
     }
     case "SET_OLDMESSAGES": {
-      state.oldMessages = action.payload;
+      state.oldMessages = [...action.payload, ...state.oldMessages]
       let nextState = { ...state, oldMessages: state.oldMessages };
       return nextState;
     }
@@ -47,13 +49,36 @@ function userChat(state = initialState, action) {
       let nextState = { ...state, currentRoom: state.currentRoom };
       return nextState;
     }
+    case "SET_PAGE": {
+      state.page += 1;
+      let nextState = { ...state, page: state.page };
+      return nextState;
+    }
+    case "SET_LOADMORE": {
+      let nextState = { ...state, loadMore: false };
+      return nextState;
+    }
     case "STATE_DEFAULT": {
       const nextState = {
         oldMessages: [],
         messages: [],
         user: null,
         room: state.room,
-        currentRoom: null
+        currentRoom: null,
+        page: 1,
+        loadMore: true
+      }
+      return nextState;
+    }
+    case "LEAVE_ROOM": {
+      const nextState = {
+        oldMessages: [],
+        messages: [],
+        user: state.user,
+        room: state.room,
+        currentRoom: null,
+        page: 1,
+        loadMore: true
       }
       return nextState;
     }
