@@ -10,7 +10,7 @@ import Button from "@material-ui/core/Button";
 import NavigationIcon from "@material-ui/icons/Navigation";
 import { Smile } from "react-feather";
 import data from "emoji-mart/data/facebook.json";
-import { NimblePicker, emojiIndex } from "emoji-mart";
+import { NimblePicker, NimbleEmojiIndex  } from "emoji-mart";
 import "emoji-mart/css/emoji-mart.css";
 import ReactTextareaAutocomplete from "@webscopeio/react-textarea-autocomplete";
 import { getByNative } from "../utils/regexCheckEmoji";
@@ -23,6 +23,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Chat() {
+  const emojiIndex = new NimbleEmojiIndex(data)
   const classes = useStyles();
   let [attribute, setAttribute] = useState(false);
   const user = useSelector((state) => state.user);
@@ -180,11 +181,12 @@ export default function Chat() {
               required
               trigger={{
                 ":": {
-                  dataProvider: (token) =>
+                  dataProvider: (token) => 
                     emojiIndex.search(token).map((o) => ({
                       name: o.name,
                       native: o.native,
-                    })),
+                    }))
+                    ,
                   component: ({ entity: { native, name } }) => (
                     <div>{`${name} ${native}`}</div>
                   ),

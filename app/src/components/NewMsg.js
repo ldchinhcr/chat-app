@@ -1,7 +1,7 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useCallback, useState } from "react";
 import { DisplayMapFC } from "./Map";
 import { EmojiReg } from "../utils/EmojsRegex";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import ReactPlayer from "react-player";
 import Avatar from "@material-ui/core/Avatar";
 import { useStyles } from "../utils/color";
@@ -31,6 +31,7 @@ moment.updateLocale("en", {
 export default function NewMsg() {
   const classes = useStyles();
   const messages = useSelector((state) => state.messages);
+
   const user = useSelector((state) => state.user);
 
   const divRef = useRef(null);
