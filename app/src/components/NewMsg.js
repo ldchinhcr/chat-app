@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useCallback, useState } from "react";
+import React, { useRef, useEffect } from "react";
 import { DisplayMapFC } from "./Map";
 import { EmojiReg } from "../utils/EmojsRegex";
 import { useSelector } from "react-redux";

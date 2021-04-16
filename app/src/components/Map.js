@@ -26,16 +26,16 @@ export const DisplayMapFC = (props) => {
 
     hMap.addObject(current)
 
-    const behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(hMap));
+    // const behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(hMap));
 
-    const ui = H.ui.UI.createDefault(hMap, defaultLayers);
+    // const ui = H.ui.UI.createDefault(hMap, defaultLayers);
 
     // This will act as a cleanup to run once this hook runs again.
     // This includes when the component un-mounts
     return () => {
       hMap.dispose();
     };
-  }, [mapRef]); // This will run this hook every time this ref is updated
+  }, [mapRef, apiKey, props.coords]); // This will run this hook every time this ref is updated
 
   return <div className="map" ref={mapRef} style={{ height: "400px", width: '400px' }} />;
 };

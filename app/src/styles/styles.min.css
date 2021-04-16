@@ -48,6 +48,7 @@ label {
 .button-chat:disabled {
   cursor: default;
   background: #6982db;
+  opacity: 0.5;
 }
 .centered-form {
   background: #333744;

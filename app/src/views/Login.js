@@ -7,8 +7,9 @@ import InputLabel from "@material-ui/core/InputLabel";
 import MenuItem from "@material-ui/core/MenuItem";
 import { FormControl } from "@material-ui/core";
 import Select from "@material-ui/core/Select";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import socket from "../socket";
+import { SOCKET_EVENTS } from "../constants";
 
 const useStyles = makeStyles((theme) => ({
   formControl: {
@@ -22,7 +23,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Login(props) {
   const classes = useStyles();
-  let [attribute, setAttribute] = useState(false);
+  let [isRequesting, setIsRequesting] = useState(false);
   const colors = [
     "orange",
     "red",
@@ -33,63 +34,79 @@ export default function Login(props) {
     "blueGrey",
     "cyan",
   ];
-  const dispatch = useDispatch();
-  let allroom = useSelector((state) => state.room);
-  const page = useSelector(state => state.page);
-  let [user, setUser] = useState(null);
-  let [createRoom, setCreateRoom] = useState(null);
-  let [chatroom, setChatRoom] = useState("");
-  let history = useHistory();
+  const allroom = useSelector((state) => state.room);
+  const page = useSelector((state) => state.page);
+  const loggedUser = useSelector((state) => state.user);
+  const [isLoading, setIsLoading] = useState(false);
+  const [user, setUser] = useState(null);
+  const history = useHistory();
 
-  const onChange = (e) => {
-    const name = e.target.name;
-    const value = e.target.value;
-    if (name === "room") {
-      setChatRoom({
-        ...chatroom,
-        [name]: value,
-      });
-    } else {
+  const onChange = React.useCallback(
+    (e) => {
+      const name = e.target.name;
+      const value = e.target.value;
       setUser({
         ...user,
         [name]: value,
       });
+    },
+    [user]
+  );
+
+  React.useEffect(() => {
+    if (!allroom) {
+      setIsLoading(true);
     }
-  };
+    if (allroom) {
+      setIsLoading(false);
+    }
+  }, [allroom]);
 
-  const onSubmit = (e) => {
-    setAttribute(true);
-    e.preventDefault();
-    const randomIndexColor = Math.floor(Math.random()*colors.length);
-    const userSubmit = {...user, avatarColor: colors[randomIndexColor], page: page, limit: 20}
-    socket.emit("join", userSubmit, (err) => {
-      if (err) return console.log(err);
-    });
-    dispatch({ type: "SET_TEMPERATE", payload: null });
-    window.setTimeout(() => {
-      setAttribute(false);
+  React.useEffect(() => {
+    if (loggedUser) {
       history.push("/chat");
-    }, 500);
-  };
+    }
+  }, [loggedUser, history]);
 
-  const addNewRoom = (e) => {
-    setAttribute(true);
-    e.preventDefault();
-    socket.emit("addRoom", chatroom, (err) => {
-      if (err) setCreateRoom(err);
+  const onSubmit = React.useCallback(
+    async (e) => {
+      setIsRequesting(true);
+      e.preventDefault();
+      const randomIndexColor = Math.floor(Math.random() * colors.length);
+      const userObj = {
+        ...user,
+        avatarColor: colors[randomIndexColor],
+        page: page,
+        limit: 20,
+      };
+      try {
+        if (socket) {
+          await socket.emit(SOCKET_EVENTS.join, userObj, (err) => {
+            if (err) throw err;
+          });
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsRequesting(false);
+      }
+    },
+    [colors, page, user]
+  );
+
+  const roomToHtml = React.useMemo(() => {
+    if (isLoading) {
+      return <div>Is Loading...</div>;
+    }
+    return (allroom || []).map((item) => {
+      return (
+        <MenuItem value={item._id} key={item.chatroom}>
+          {item.chatroom}
+        </MenuItem>
+      );
     });
-    setChatRoom("");
-    setAttribute(false);
-  };
-  const roomToHtml = allroom
-    ? allroom.map((item) => {
-        return (
-          <MenuItem value={item._id} key={item.chatroom}>
-            {item.chatroom}
-          </MenuItem>
-        );
-      })
-    : [];
+  }, [allroom, isLoading]);
+
   return (
     <div className="centered-form">
       <div className="centered-form__box">
@@ -118,43 +135,11 @@ export default function Login(props) {
             <button
               className="button-chat"
               style={{ width: "100%", marginTop: "15px" }}
-              disabled={attribute}
+              disabled={isRequesting}
             >
               Join
             </button>
           </FormControl>
-        </form>
-        {createRoom ? (
-          <p
-            style={{
-              color: "red",
-              fontWeight: "bold",
-              textAlign: "center",
-              marginTop: "10px",
-              marginBottom: "10px",
-            }}
-          >
-            {createRoom}
-          </p>
-        ) : null}
-        <form onSubmit={addNewRoom}>
-          <TextField
-            onChange={onChange}
-            required
-            value={chatroom && chatroom.room}
-            id="standard-required"
-            name="room"
-            label="Add new Room"
-            style={{ marginBottom: "10px" }}
-            autoComplete="off"
-          />
-          <button
-            className="button-chat"
-            style={{ width: "100%", marginTop: "15px" }}
-            disabled={attribute}
-          >
-            Add
-          </button>
         </form>
       </div>
     </div>
