@@ -93,7 +93,7 @@ export default function Chat() {
         setInput("");
       }
     },
-    [user._id, user.chatroom._id, user.name, user.sid]
+    [user]
   );
 
   function toggleEmojiPicker() {

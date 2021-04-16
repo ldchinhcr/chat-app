@@ -41,7 +41,7 @@ export const EmojiReg = (text) => {
   return (
     <span>
       {partsOfTheMessageText
-        ? partsOfTheMessageText.map((p) => <span>{p}</span>)
+        ? partsOfTheMessageText.map((p, idx) => <span key={idx}>{p}</span>)
         : text}
     </span>
   );

@@ -52,6 +52,7 @@ export default function NewMsg() {
       }
       return (
         <div
+          key={el._id}
           className={user._id === el.user.id ? "message right" : "message left"}
         >
           <div className="message__name">{el.user.name}</div>

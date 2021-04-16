@@ -3,7 +3,7 @@ import * as React from 'react';
 export const DisplayMapFC = (props) => {
   // Create a reference to the HTML element we want to put the map on
   const mapRef = React.useRef(null);
-  const apiKey = process.env.MAP
+  const apiKey = process.env.REACT_APP_MAP
   /**
    * Create the map instance
    * While `useEffect` could also be used here, `useLayoutEffect` will render

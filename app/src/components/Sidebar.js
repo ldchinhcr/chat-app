@@ -59,6 +59,7 @@ export default function Sidebar() {
   const roomRender = room.map((el) => {
     return (
       <h3
+        key={el._id}
         className={`list-title ${
           user.chatroom._id === el._id ? "list-title-choose" : "none-choose"
         }`}
