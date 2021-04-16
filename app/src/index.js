@@ -14,72 +14,71 @@ const initialState = {
   room: [],
   currentRoom: null,
   page: 1,
-  loadMore: true
+  loadMore: true,
 };
 
-function userChat(state = initialState, action) {
+export const ACTIONS = {
+  SET_USER: "CHAT/SET_USER",
+  SET_MESSAGES: "CHAT/SET_MESSAGES",
+  SET_EMPTY_MESSAGES: "CHAT/SET_EMPTY_MESSAGES",
+  SET_OLD_MESSAGES: "CHAT/SET_OLD_MESSAGES",
+  SET_ROOM: "CHAT/SET_ROOM",
+  CURRENT_ROOM: "CHAT/CURRENT_ROOM",
+  SET_PAGE: "CHAT/SET_PAGE",
+  SET_LOAD_MORE: "CHAT/SET_LOAD_MORE",
+  RESET_STATE: "CHAT/RESET_STATE",
+  LEAVE_ROOM: "CHAT/LEAVE_ROOM",
+};
+
+function chatReducers(state = initialState, action) {
   switch (action.type) {
-    case "SET_USER": {
+    case ACTIONS.SET_USER: {
       state.user = action.payload;
-      let nextState = { ...state, user: state.user };
+      const nextState = { ...state, user: state.user };
       return nextState;
     }
-    case "SET_MESSAGES": {
+    case ACTIONS.SET_MESSAGES: {
       state.messages.push(action.payload);
-      let nextState = { ...state, messages: state.messages };
+      const nextState = { ...state, messages: state.messages };
       return nextState;
     }
-    case "SET_EMPTYMESSAGES": {
-      state.messages = [];
-      let nextState = { ...state, messages: state.messages };
+    case ACTIONS.SET_EMPTY_MESSAGES: {
+      const nextState = { ...state, messages: [] };
       return nextState;
     }
-    case "SET_ROOM": {
+    case ACTIONS.SET_ROOM: {
       state.room = action.payload;
-      let nextState = { ...state, room: state.room };
+      const nextState = { ...state, room: state.room };
       return nextState;
     }
-    case "SET_OLDMESSAGES": {
-      state.oldMessages = [...action.payload, ...state.oldMessages]
-      let nextState = { ...state, oldMessages: state.oldMessages };
+    case ACTIONS.SET_OLD_MESSAGES: {
+      state.oldMessages = [...action.payload, ...state.oldMessages];
+      const nextState = { ...state, oldMessages: state.oldMessages };
       return nextState;
     }
-    case "CURRENT_ROOM": {
+    case ACTIONS.CURRENT_ROOM: {
       state.currentRoom = action.payload;
-      let nextState = { ...state, currentRoom: state.currentRoom };
+      const nextState = { ...state, currentRoom: state.currentRoom };
       return nextState;
     }
-    case "SET_PAGE": {
+    case ACTIONS.SET_PAGE: {
       state.page += 1;
-      let nextState = { ...state, page: state.page };
+      const nextState = { ...state, page: state.page };
       return nextState;
     }
-    case "SET_LOADMORE": {
-      let nextState = { ...state, loadMore: false };
+    case ACTIONS.SET_LOAD_MORE: {
+      const nextState = { ...state, loadMore: false };
       return nextState;
     }
-    case "STATE_DEFAULT": {
+    case ACTIONS.RESET_STATE: {
+      return initialState;
+    }
+    case ACTIONS.LEAVE_ROOM: {
       const nextState = {
-        oldMessages: [],
-        messages: [],
-        user: null,
-        room: state.room,
-        currentRoom: null,
-        page: 1,
-        loadMore: true
-      }
-      return nextState;
-    }
-    case "LEAVE_ROOM": {
-      const nextState = {
-        oldMessages: [],
-        messages: [],
+        ...initialState,
         user: state.user,
         room: state.room,
-        currentRoom: null,
-        page: 1,
-        loadMore: true
-      }
+      };
       return nextState;
     }
     default:
@@ -88,20 +87,17 @@ function userChat(state = initialState, action) {
 }
 
 const store = createStore(
-  userChat,
+  chatReducers,
   window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
 );
 
 ReactDOM.render(
   <Provider store={store}>
-      <Router>
+    <Router>
       <App />
     </Router>
   </Provider>,
   document.getElementById("root")
 );
 
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://bit.ly/CRA-PWA
 serviceWorker.unregister();

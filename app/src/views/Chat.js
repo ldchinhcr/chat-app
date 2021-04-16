@@ -1,16 +1,17 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import "../styles/styles.min.css";
 import Content from "../components/Content";
 import Sidebar from "../components/Sidebar";
 import { makeStyles } from "@material-ui/core/styles";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import socket from "../socket";
+import { SOCKET_EVENTS } from "../constants";
 import Button from "@material-ui/core/Button";
 import NavigationIcon from "@material-ui/icons/Navigation";
 import { Smile } from "react-feather";
 import data from "emoji-mart/data/facebook.json";
-import { NimblePicker, NimbleEmojiIndex  } from "emoji-mart";
+import { NimblePicker, NimbleEmojiIndex } from "emoji-mart";
 import "emoji-mart/css/emoji-mart.css";
 import ReactTextareaAutocomplete from "@webscopeio/react-textarea-autocomplete";
 import { getByNative } from "../utils/regexCheckEmoji";
@@ -23,26 +24,13 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Chat() {
-  const emojiIndex = new NimbleEmojiIndex(data)
+  const emojiIndex = new NimbleEmojiIndex(data);
   const classes = useStyles();
-  let [attribute, setAttribute] = useState(false);
+  const [isRequesting, setIsRequesting] = useState(false);
   const user = useSelector((state) => state.user);
-  let [input, setInput] = useState("");
-  let [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  let [nothingValue, setValue] = useState(0);
+  const [input, setInput] = useState("");
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const history = useHistory();
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    if (!user) {
-      socket.on("allRoom", (room) => {
-        dispatch({ type: "SET_ROOM", payload: room });
-      });
-    }
-    window.setTimeout(() => {
-      setValue((value) => ++value);
-    }, 2000);
-  }, []);
 
   const onChange = (e) => {
     const emoji = getByNative(e.target.value);
@@ -53,64 +41,67 @@ export default function Chat() {
     }
   };
 
-  const onHandleSubmit = () => {
-    setAttribute(true);
+  const onHandleSubmit = React.useCallback(async () => {
+    setIsRequesting(true);
     const obj = {
       user: { id: user._id, name: user.name },
       message: input,
       chatroom: user.chatroom._id,
       sid: user.sid,
     };
-    socket.emit("sendInputMsg", obj, (err) => {
-      if (err) console.log(err);
-      console.log("Delivered!");
+    try {
+      await socket.emit(SOCKET_EVENTS.sendInputMsg, obj, (err) => {
+        if (err) throw err;
+      });
+    } catch (err) {
+      console.error(err);
+    } finally {
       setInput("");
-      setAttribute(false);
-    });
-    window.setTimeout(() => {
-      setValue((value) => ++value);
-    }, 2000);
-  };
-
-  const onSendLocation = (e) => {
-    e.preventDefault();
-    setAttribute(true);
-    if (!navigator.geolocation) {
-      alert("Your browser not support send location");
-      setAttribute(false);
-      return;
+      setIsRequesting(false);
     }
+  }, [user, input]);
 
-    navigator.geolocation.getCurrentPosition((position) => {
-      const coords = JSON.stringify({
-        lati: position.coords.latitude,
-        long: position.coords.longitude,
-      });
-      const obj = {
-        user: { id: user._id, name: user.name },
-        message: coords,
-        chatroom: user.chatroom._id,
-        sid: user.sid,
-      };
-      socket.emit("sendLocation", obj, (err) => {
-        if (err) console.log(err);
-      });
-    });
-    window.setTimeout(() => {
-      setAttribute(false);
-    }, 1500);
-    setInput("");
-    window.setTimeout(() => {
-      setValue((value) => ++value);
-    }, 2000);
-  };
+  const onSendLocation = React.useCallback(
+    (e) => {
+      e.preventDefault();
+      setIsRequesting(true);
+      if (!navigator.geolocation) {
+        alert("Your browser not support send location");
+        setIsRequesting(false);
+        return;
+      }
+      try {
+        navigator.geolocation.getCurrentPosition(async (position) => {
+          const coords = JSON.stringify({
+            lati: position.coords.latitude,
+            long: position.coords.longitude,
+          });
+          const obj = {
+            user: { id: user._id, name: user.name },
+            message: coords,
+            chatroom: user.chatroom._id,
+            sid: user.sid,
+          };
+          await socket.emit(SOCKET_EVENTS.sendLocation, obj, (err) => {
+            if (err) throw err;
+          });
+        });
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsRequesting(false);
+        setInput("");
+      }
+    },
+    [user._id, user.chatroom._id, user.name, user.sid]
+  );
 
   function toggleEmojiPicker() {
     setShowEmojiPicker(!showEmojiPicker);
   }
 
   function handleKeyPress(event) {
-    if (event.key === "Enter") {
+    if (event.keyCode === 13) {
       event.preventDefault();
       onHandleSubmit();
     }
@@ -121,6 +112,20 @@ export default function Chat() {
     setInput(text);
     setShowEmojiPicker(false);
   }
+
+  const triggerConfig = {
+    ":": {
+      dataProvider: (token) =>
+        emojiIndex.search(token).map((o) => ({
+          name: o.name,
+          native: o.native,
+        })),
+      component: ({ entity: { native, name } }) => (
+        <div>{`${name} ${native}`}</div>
+      ),
+      output: (item) => `${item.native}`,
+    },
+  };
 
   if (!user) {
     return (
@@ -157,7 +162,7 @@ export default function Chat() {
             color="primary"
             className={classes.button}
             onClick={onSendLocation}
-            disabled={attribute}
+            disabled={isRequesting}
           >
             <NavigationIcon className={classes.extendedIcon} />
             My Location
@@ -179,20 +184,8 @@ export default function Chat() {
               onChange={onChange}
               placeholder="Compose your message and hit ENTER to send"
               required
-              trigger={{
-                ":": {
-                  dataProvider: (token) => 
-                    emojiIndex.search(token).map((o) => ({
-                      name: o.name,
-                      native: o.native,
-                    }))
-                    ,
-                  component: ({ entity: { native, name } }) => (
-                    <div>{`${name} ${native}`}</div>
-                  ),
-                  output: (item) => `${item.native}`,
-                },
-              }}
+              disabled={isRequesting}
+              trigger={triggerConfig}
             />
           </form>
         </div>
