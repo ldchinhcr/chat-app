@@ -12,6 +12,7 @@ import socket from "../socket";
 import { SOCKET_EVENTS } from "../constants";
 import { ACTIONS as CHAT_ACTIONS } from "../index";
 import Loading from './Loading';
+import { useReactResponsive } from "../hooks";
 
 let moment = require("moment");
 moment.updateLocale("en", {
@@ -51,6 +52,8 @@ function Messages(props) {
   } = props;
   const normalizedMsgs = normalizeMessages(messages);
   const oldMsgs = useRef(normalizedMsgs);
+  const { isMobile } = useReactResponsive();
+  const sizeContainer = isMobile? "250px" : "400px";
 
   useEffect(() => {
     if (isChoosingRoom && currentRoom) {
@@ -99,9 +102,9 @@ function Messages(props) {
     [loadMoreButton, dispatch, page]
   );
 
-  const displayContent = (el, text) => {
+  const displayContent = React.useCallback((el, text) => {
     if (el.isCoords) {
-      return <DisplayMapFC coords={JSON.parse(el.message)} />;
+      return <DisplayMapFC coords={JSON.parse(el.message)} isMobile={isMobile} />;
     }
     if (el.isUrl) {
       return (
@@ -118,17 +121,17 @@ function Messages(props) {
             e.target.onerror = null;
             e.target.src = BrokenImage;
           }}
-          width="400px"
+          width={sizeContainer}
           height="auto"
           alt={el.message}
         />
       );
     }
     if (el.isYTube) {
-      return <ReactPlayer url={el.message} width="400px" height="400px" loop />;
+      return <ReactPlayer url={el.message} width={sizeContainer} height={sizeContainer} loop />;
     }
     return <span>{text}</span>;
-  };
+  }, [isMobile, sizeContainer]);
 
   const html = React.useMemo(
     () =>
@@ -171,7 +174,7 @@ function Messages(props) {
           </div>
         );
       }),
-    [normalizedMsgs, classes, user]
+    [normalizedMsgs, classes, user, displayContent]
   );
 
   const styles = {
@@ -179,7 +182,8 @@ function Messages(props) {
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    margin: " 0 40%",
+    margin: isMobile ? " 0 25%" : "0 40%",
+    padding: '0 10px',
     height: "100px",
     borderRadius: "8px",
     border: "1px solid gray",
@@ -193,7 +197,7 @@ function Messages(props) {
   }
 
   if (!normalizedMsgs?.length) {
-    return <Loading styles={styles} />;
+    return <Loading styles={styles} isMobile={isMobile} />;
   }
 
   return (

@@ -6,7 +6,7 @@ const PHASE_3 = `${TEXT}...`;
 
 const Loading = (props) => {
   const elemRef = React.useRef();
-  const { styles } = props
+  const { styles, isMobile } = props
 
   React.useEffect(() => {
     const timer = setInterval(() => {
@@ -24,7 +24,7 @@ const Loading = (props) => {
   const textStyles = {
     position: 'absolute',
     top: '40%',
-    left: '40%'
+    left: isMobile ? '30%' : '40%'
   }
 
   return (

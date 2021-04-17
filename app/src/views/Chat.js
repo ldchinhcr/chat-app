@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Content from "../components/Content";
 import Sidebar from "../components/Sidebar";
 import { makeStyles } from "@material-ui/core/styles";
@@ -15,6 +15,10 @@ import "emoji-mart/css/emoji-mart.css";
 import ReactTextareaAutocomplete from "@webscopeio/react-textarea-autocomplete";
 import { getByNative } from "../utils/regexCheckEmoji";
 import CssBaseline from "@material-ui/core/CssBaseline";
+import cx from "classnames";
+import ChevronRight from "@material-ui/icons/ChevronRight";
+import ChevronLeft from "@material-ui/icons/ChevronLeft";
+import { useReactResponsive } from "../hooks";
 
 const useStyles = makeStyles((theme) => ({
   button: {
@@ -25,14 +29,17 @@ const useStyles = makeStyles((theme) => ({
 function Chat(props) {
   const emojiIndex = new NimbleEmojiIndex(data);
   const classes = useStyles();
+  const sidebarRef = useRef();
   const { user } = props;
   const [isRequesting, setIsRequesting] = useState(false);
   const [isHoldingShift, setIsHoldingShift] = useState(false);
   const [isChoosingRoom, setIsChoosingRoom] = useState(false);
-  const pageProps = { ...props, isChoosingRoom, setIsChoosingRoom };
   const [input, setInput] = useState("");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const history = useHistory();
+  const [isCollapsed, setIsCollapsed] = useState(true);
+  const { isDesktop, isTablet, isMobile } = useReactResponsive();
+  const pageProps = { ...props, isChoosingRoom, setIsChoosingRoom, setIsCollapsed };
 
   const setHoldingShift = React.useCallback((e) => {
     if (e.key === "Shift") {
@@ -49,6 +56,16 @@ function Chat(props) {
     [isHoldingShift]
   );
 
+  const clickOutsideSidebar = React.useCallback((ev) => {
+    const actionElement = sidebarRef.current
+    const clickOnAction =
+      actionElement && (ev.target === actionElement || actionElement.contains(ev.target))
+
+    if (!clickOnAction && !isCollapsed) {
+      setIsCollapsed(true)
+    }
+  }, [isCollapsed])
+
   useEffect(() => {
     window.addEventListener("keydown", setHoldingShift);
     return () => window.removeEventListener("keydown", setHoldingShift);
@@ -58,6 +75,12 @@ function Chat(props) {
     window.addEventListener("keyup", unSetHoldingShift);
     return () => window.removeEventListener("keyup", unSetHoldingShift);
   }, [unSetHoldingShift]);
+
+  useEffect(() => {
+    window.addEventListener("click", clickOutsideSidebar);
+    return () => window.removeEventListener("keydown", clickOutsideSidebar);
+  }, [clickOutsideSidebar]);
+
 
   const onChange = (e) => {
     const emoji = getByNative(e.target.value);
@@ -123,6 +146,12 @@ function Chat(props) {
     [user]
   );
 
+  const onToggleCollapsible = React.useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsCollapsed(!isCollapsed);
+  }, [isCollapsed]);
+
   function toggleEmojiPicker() {
     setShowEmojiPicker(!showEmojiPicker);
   }
@@ -172,8 +201,17 @@ function Chat(props) {
   return (
     <div className="chat">
       <CssBaseline />
-      <Sidebar {...pageProps} />
-      <div className="chat__main">
+      {isDesktop || isTablet ? (
+        <Sidebar {...pageProps} />
+      ) : (
+        <div className={cx("collapsible-sidebar", { collapsed: isCollapsed })} ref={sidebarRef}>
+          <span className="collapsible-icon" onClick={onToggleCollapsible}>
+            {isCollapsed ? <ChevronRight /> : <ChevronLeft />}
+          </span>
+          <Sidebar {...pageProps} />
+        </div>
+      )}
+      <div className={cx("chat__main", { 'mobile-view': isMobile })}>
         <Content {...pageProps} />
         {showEmojiPicker ? (
           <NimblePicker
@@ -232,7 +270,7 @@ const mapStateToProps = (state) => {
 };
 
 const mapDispatchToProps = (dispatch) => {
-  return { dispatch }
-}
+  return { dispatch };
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(Chat);

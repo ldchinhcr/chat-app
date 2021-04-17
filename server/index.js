@@ -153,6 +153,7 @@ io.on("connection", async (socket) => {
         .emit("messages", server.sendUserLeaveMessage());
       socket.leave(server.user.chatroom._id);
       io.emit("allRoom", await Server.allRoom());
+      callback();
     } catch (err) {
       console.log(err.message);
     }

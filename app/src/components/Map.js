@@ -38,5 +38,10 @@ export const DisplayMapFC = (props) => {
     // eslint-disable-next-line
   }, [mapRef]); // This will run this hook every time this ref is updated
 
-  return <div className="map" ref={mapRef} style={{ height: "400px", width: '400px' }} />;
+  const style = {
+    height: props.isMobile ? '250px' : '400px',
+    width: props.isMobile ? '250px' : '400px'
+  }
+
+  return <div className="map" ref={mapRef} style={style} />;
 };

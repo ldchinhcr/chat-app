@@ -61,7 +61,7 @@ function chatReducers(state = initialState, action) {
       return nextState;
     }
     case ACTIONS.RESET_STATE: {
-      return initialState;
+      return { ...initialState, room: state.room };
     }
     case ACTIONS.LEAVE_ROOM: {
       const nextState = {

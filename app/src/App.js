@@ -7,7 +7,7 @@ import socket from "./socket";
 import { useDispatch } from "react-redux";
 import { ACTIONS as CHAT_ACTIONS } from "./index";
 import { SOCKET_EVENTS, USER_LOCAL_STORAGE_KEY } from "./constants";
-import useLocalStorage from "./hooks/useLocalStorage";
+import { useLocalStorage } from "./hooks";
 
 function App() {
   const dispatch = useDispatch();

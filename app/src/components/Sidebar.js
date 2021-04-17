@@ -19,6 +19,7 @@ export default function Sidebar(props) {
   const onChooseRoom = React.useCallback(
     async (id) => {
       props.setIsChoosingRoom(true)
+      props.setIsCollapsed(true)
       const obj = { username: user.name, chatroom: id, page: 1, limit: 20 };
       dispatch({ type: CHAT_ACTIONS.LEAVE_ROOM });
       try {
