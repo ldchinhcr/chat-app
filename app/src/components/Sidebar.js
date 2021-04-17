@@ -1,15 +1,14 @@
 import React from "react";
 import socket from "../socket";
-import { SOCKET_EVENTS } from "../constants";
-import { useSelector, useDispatch } from "react-redux";
+import { SOCKET_EVENTS, USER_LOCAL_STORAGE_KEY } from "../constants";
+import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { ACTIONS as CHAT_ACTIONS } from "../index";
 
-export default function Sidebar() {
+export default function Sidebar(props) {
   const dispatch = useDispatch();
   const history = useHistory();
-  const room = useSelector((state) => state.room);
-  const user = useSelector((state) => state.user);
+  const { room, user } = props
 
   React.useEffect(() => {
     if (!user && !room?.length) {
@@ -17,53 +16,45 @@ export default function Sidebar() {
     }
   }, [user, room, history]);
 
-  const emptyMsg = React.useCallback(() => {
-    dispatch({ type: CHAT_ACTIONS.SET_EMPTY_MESSAGES });
-  }, [dispatch]);
-
   const onChooseRoom = React.useCallback(
     async (id) => {
+      props.setIsChoosingRoom(true)
       const obj = { username: user.name, chatroom: id, page: 1, limit: 20 };
       dispatch({ type: CHAT_ACTIONS.LEAVE_ROOM });
       try {
-        await socket.emit(SOCKET_EVENTS.join, obj, (err) => {
-          if (err) throw err;
-        });
+        socket.emit(SOCKET_EVENTS.leaveRoom);
+        socket.emit(SOCKET_EVENTS.join, obj);
       } catch (error) {
         console.error(error);
+        props.setIsChoosingRoom(false)
       }
     },
-    [dispatch, user.name]
+    [dispatch, user.name, props]
   );
 
   const backToLoginPage = React.useCallback(
     (e) => {
       e.preventDefault();
       dispatch({ type: CHAT_ACTIONS.RESET_STATE });
+      try {
+        localStorage.setItem(USER_LOCAL_STORAGE_KEY, JSON.stringify(null));
+      } catch (err) {
+        console.error(err);
+      } finally {
+        history.push("/");
+      }
     },
-    [dispatch]
+    [dispatch, history]
   );
 
-  const selectRoom = React.useCallback(
-    async (el) => {
-      await socket.emit(SOCKET_EVENTS.leaveRoom);
-      await emptyMsg();
-      const timer = setTimeout(() => {
-        onChooseRoom(el._id);
-      }, 200);
-      return () => clearTimeout(timer);
-    },
-    [emptyMsg, onChooseRoom]
-  );
-
-  const roomRender = room.map((el) => {
+  const roomRender = room.map((el, idx) => {
     return (
       <h3
-        key={el._id}
+        key={el._id + idx}
         className={`list-title ${
           user.chatroom._id === el._id ? "list-title-choose" : "none-choose"
         }`}
-        onClick={() => selectRoom(el)}
+        onClick={() => onChooseRoom(el._id)}
       >
         {el.chatroom} - {el.username.length}
       </h3>
@@ -72,7 +63,7 @@ export default function Sidebar() {
   return (
     <div className="chat__sidebar">
       <div className="sidebar-template">
-        <h2 className="room-title">{user && user.name}</h2>
+        <h2 className="room-title">{user.name}</h2>
         {roomRender}
       </div>
       <div className="sidebar-template-bottom">

@@ -1,15 +1,23 @@
 import React, { useEffect } from "react";
-import "./App.css";
+import "./styles/styles.css";
 import { Switch, Route } from "react-router-dom";
 import Login from "./views/Login";
 import Chat from "./views/Chat";
 import socket from "./socket";
 import { useDispatch } from "react-redux";
 import { ACTIONS as CHAT_ACTIONS } from "./index";
-import { SOCKET_EVENTS } from "./constants";
+import { SOCKET_EVENTS, USER_LOCAL_STORAGE_KEY } from "./constants";
+import useLocalStorage from "./hooks/useLocalStorage";
 
 function App() {
   const dispatch = useDispatch();
+  const [user, setUser] = useLocalStorage(USER_LOCAL_STORAGE_KEY, null);
+
+  useEffect(() => {
+    if (user) {
+      dispatch({ type: CHAT_ACTIONS.SET_USER, payload: user });
+    }
+  }, [dispatch, user])
 
   useEffect(() => {
     socket.on(SOCKET_EVENTS.allRoom, (rooms) => {
@@ -19,6 +27,7 @@ function App() {
       dispatch({ type: CHAT_ACTIONS.CURRENT_ROOM, payload: room });
     });
     socket.on(SOCKET_EVENTS.setUser, (user) => {
+      setUser(user)
       dispatch({ type: CHAT_ACTIONS.SET_USER, payload: user });
     });
     socket.on(SOCKET_EVENTS.messages, (msgs) => {
@@ -27,7 +36,7 @@ function App() {
     socket.on(SOCKET_EVENTS.oldmessages, (msgs) => {
       dispatch({ type: CHAT_ACTIONS.SET_OLD_MESSAGES, payload: msgs });
     });
-  }, [dispatch]);
+  }, [dispatch, setUser]);
 
   useEffect(() => {
     socket.emit(SOCKET_EVENTS.fetchRoom);

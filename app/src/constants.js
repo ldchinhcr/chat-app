@@ -12,4 +12,6 @@ const SOCKET_EVENTS = {
     fetchOldMsg: 'fetchOldMsg',
 }
 
-export { SOCKET_EVENTS }
+const USER_LOCAL_STORAGE_KEY = 'user'
+
+export { SOCKET_EVENTS, USER_LOCAL_STORAGE_KEY }

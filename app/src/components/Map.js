@@ -25,17 +25,18 @@ export const DisplayMapFC = (props) => {
     const current = new H.map.Marker({ lat: props.coords.lati, lng: props.coords.long });
 
     hMap.addObject(current)
-
-    // const behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(hMap));
-
-    // const ui = H.ui.UI.createDefault(hMap, defaultLayers);
+    // eslint-disable-next-line
+    const behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(hMap));
+    // eslint-disable-next-line
+    const ui = H.ui.UI.createDefault(hMap, defaultLayers);
 
     // This will act as a cleanup to run once this hook runs again.
     // This includes when the component un-mounts
     return () => {
       hMap.dispose();
     };
-  }, [mapRef, apiKey, props.coords]); // This will run this hook every time this ref is updated
+    // eslint-disable-next-line
+  }, [mapRef]); // This will run this hook every time this ref is updated
 
   return <div className="map" ref={mapRef} style={{ height: "400px", width: '400px' }} />;
 };

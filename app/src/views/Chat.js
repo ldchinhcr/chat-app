@@ -1,9 +1,8 @@
-import React, { useState } from "react";
-import "../styles/styles.min.css";
+import React, { useEffect, useState } from "react";
 import Content from "../components/Content";
 import Sidebar from "../components/Sidebar";
 import { makeStyles } from "@material-ui/core/styles";
-import { useSelector } from "react-redux";
+import { connect } from "react-redux";
 import { useHistory } from "react-router-dom";
 import socket from "../socket";
 import { SOCKET_EVENTS } from "../constants";
@@ -23,14 +22,42 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Chat() {
+function Chat(props) {
   const emojiIndex = new NimbleEmojiIndex(data);
   const classes = useStyles();
+  const { user } = props;
   const [isRequesting, setIsRequesting] = useState(false);
-  const user = useSelector((state) => state.user);
+  const [isHoldingShift, setIsHoldingShift] = useState(false);
+  const [isChoosingRoom, setIsChoosingRoom] = useState(false);
+  const pageProps = { ...props, isChoosingRoom, setIsChoosingRoom };
   const [input, setInput] = useState("");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const history = useHistory();
+
+  const setHoldingShift = React.useCallback((e) => {
+    if (e.key === "Shift") {
+      setIsHoldingShift(true);
+    }
+  }, []);
+
+  const unSetHoldingShift = React.useCallback(
+    (e) => {
+      if (e.key === "Shift" && isHoldingShift) {
+        setIsHoldingShift(false);
+      }
+    },
+    [isHoldingShift]
+  );
+
+  useEffect(() => {
+    window.addEventListener("keydown", setHoldingShift);
+    return () => window.removeEventListener("keydown", setHoldingShift);
+  }, [setHoldingShift]);
+
+  useEffect(() => {
+    window.addEventListener("keyup", unSetHoldingShift);
+    return () => window.removeEventListener("keyup", unSetHoldingShift);
+  }, [unSetHoldingShift]);
 
   const onChange = (e) => {
     const emoji = getByNative(e.target.value);
@@ -101,7 +128,7 @@ export default function Chat() {
   }
 
   function handleKeyPress(event) {
-    if (event.keyCode === 13) {
+    if (!isHoldingShift && event.key === "Enter") {
       event.preventDefault();
       onHandleSubmit();
     }
@@ -145,10 +172,9 @@ export default function Chat() {
   return (
     <div className="chat">
       <CssBaseline />
-      <Sidebar id="sidebar" />
-
+      <Sidebar {...pageProps} />
       <div className="chat__main">
-        <Content id="messages" />
+        <Content {...pageProps} />
         {showEmojiPicker ? (
           <NimblePicker
             set="facebook"
@@ -182,9 +208,9 @@ export default function Chat() {
               loadingComponent={() => <span>Loading</span>}
               onKeyPress={handleKeyPress}
               onChange={onChange}
-              placeholder="Compose your message and hit ENTER to send"
-              required
               disabled={isRequesting}
+              placeholder="Hit Enter to send, Shift + Enter to break line"
+              required
               trigger={triggerConfig}
             />
           </form>
@@ -193,3 +219,20 @@ export default function Chat() {
     </div>
   );
 }
+
+const mapStateToProps = (state) => {
+  return {
+    page: state.page,
+    messages: state.messages,
+    loadMoreButton: state.loadMore,
+    user: state.user,
+    room: state.room,
+    currentRoom: state.currentRoom,
+  };
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return { dispatch }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Chat);

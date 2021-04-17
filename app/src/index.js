@@ -1,14 +1,13 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import "./index.css";
 import App from "./App";
 import * as serviceWorker from "./serviceWorker";
 import { BrowserRouter as Router } from "react-router-dom";
 import { Provider } from "react-redux";
 import { createStore } from "redux";
+import uniq from "lodash/uniq";
 
 const initialState = {
-  oldMessages: [],
   messages: [],
   user: null,
   room: [],
@@ -20,7 +19,6 @@ const initialState = {
 export const ACTIONS = {
   SET_USER: "CHAT/SET_USER",
   SET_MESSAGES: "CHAT/SET_MESSAGES",
-  SET_EMPTY_MESSAGES: "CHAT/SET_EMPTY_MESSAGES",
   SET_OLD_MESSAGES: "CHAT/SET_OLD_MESSAGES",
   SET_ROOM: "CHAT/SET_ROOM",
   CURRENT_ROOM: "CHAT/CURRENT_ROOM",
@@ -33,37 +31,29 @@ export const ACTIONS = {
 function chatReducers(state = initialState, action) {
   switch (action.type) {
     case ACTIONS.SET_USER: {
-      state.user = action.payload;
-      const nextState = { ...state, user: state.user };
+      const nextState = { ...state, user: action.payload };
       return nextState;
     }
     case ACTIONS.SET_MESSAGES: {
-      state.messages.push(action.payload);
-      const nextState = { ...state, messages: state.messages };
-      return nextState;
-    }
-    case ACTIONS.SET_EMPTY_MESSAGES: {
-      const nextState = { ...state, messages: [] };
+      const messages = uniq([...state.messages, action.payload]);
+      const nextState = { ...state, messages };
       return nextState;
     }
     case ACTIONS.SET_ROOM: {
-      state.room = action.payload;
-      const nextState = { ...state, room: state.room };
+      const nextState = { ...state, room: action.payload };
       return nextState;
     }
     case ACTIONS.SET_OLD_MESSAGES: {
-      state.oldMessages = [...action.payload, ...state.oldMessages];
-      const nextState = { ...state, oldMessages: state.oldMessages };
+      const messages = uniq([...action.payload, ...state.messages]);
+      const nextState = { ...state, messages };
       return nextState;
     }
     case ACTIONS.CURRENT_ROOM: {
-      state.currentRoom = action.payload;
-      const nextState = { ...state, currentRoom: state.currentRoom };
+      const nextState = { ...state, currentRoom: action.payload };
       return nextState;
     }
     case ACTIONS.SET_PAGE: {
-      state.page += 1;
-      const nextState = { ...state, page: state.page };
+      const nextState = { ...state, page: state.page + 1 };
       return nextState;
     }
     case ACTIONS.SET_LOAD_MORE: {
@@ -76,6 +66,7 @@ function chatReducers(state = initialState, action) {
     case ACTIONS.LEAVE_ROOM: {
       const nextState = {
         ...initialState,
+        messages: [],
         user: state.user,
         room: state.room,
       };

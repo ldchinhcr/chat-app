@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import "../styles/styles.min.css";
 import { useHistory } from "react-router-dom";
 import TextField from "@material-ui/core/TextField";
 import { makeStyles } from "@material-ui/core/styles";
@@ -66,10 +65,13 @@ export default function Login(props) {
     if (loggedUser) {
       history.push("/chat");
     }
-  }, [loggedUser, history]);
+  }, [loggedUser, history, isRequesting]);
 
   const onSubmit = React.useCallback(
     async (e) => {
+      if (!user.chatroom || !user.username) {
+        return
+      }
       setIsRequesting(true);
       e.preventDefault();
       const randomIndexColor = Math.floor(Math.random() * colors.length);
@@ -87,8 +89,6 @@ export default function Login(props) {
         }
       } catch (err) {
         console.error(err);
-      } finally {
-        setIsRequesting(false);
       }
     },
     [colors, page, user]
@@ -137,7 +137,7 @@ export default function Login(props) {
               style={{ width: "100%", marginTop: "15px" }}
               disabled={isRequesting}
             >
-              Join
+              {isRequesting && !user ? 'Joining ...' : 'Join'}
             </button>
           </FormControl>
         </form>
