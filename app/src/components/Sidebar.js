@@ -1,25 +1,30 @@
-import React from "react";
+import React, { useMemo, useCallback, useEffect } from "react";
 import socket from "../socket";
 import { SOCKET_EVENTS, USER_LOCAL_STORAGE_KEY } from "../constants";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { ACTIONS as CHAT_ACTIONS } from "../index";
+import SkeletonLoading from "./Skeleton";
+import cx from "classnames";
 
 export default function Sidebar(props) {
   const dispatch = useDispatch();
   const history = useHistory();
-  const { room, user } = props
+  const { room, user } = props;
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!user && !room?.length) {
       history.push("/");
     }
   }, [user, room, history]);
 
-  const onChooseRoom = React.useCallback(
+  const onChooseRoom = useCallback(
     async (id) => {
-      props.setIsChoosingRoom(true)
-      props.setIsCollapsed(true)
+      if (props.isChoosingRoom) {
+        return;
+      }
+      props.setIsChoosingRoom(true);
+      props.setIsCollapsed(true);
       const obj = { username: user.name, chatroom: id, page: 1, limit: 20 };
       dispatch({ type: CHAT_ACTIONS.LEAVE_ROOM });
       try {
@@ -27,13 +32,13 @@ export default function Sidebar(props) {
         socket.emit(SOCKET_EVENTS.join, obj);
       } catch (error) {
         console.error(error);
-        props.setIsChoosingRoom(false)
+        props.setIsChoosingRoom(false);
       }
     },
     [dispatch, user.name, props]
   );
 
-  const backToLoginPage = React.useCallback(
+  const backToLoginPage = useCallback(
     (e) => {
       e.preventDefault();
       dispatch({ type: CHAT_ACTIONS.RESET_STATE });
@@ -48,19 +53,26 @@ export default function Sidebar(props) {
     [dispatch, history]
   );
 
-  const roomRender = room.map((el, idx) => {
-    return (
-      <h3
-        key={el._id + idx}
-        className={`list-title ${
-          user.chatroom._id === el._id ? "list-title-choose" : "none-choose"
-        }`}
-        onClick={() => onChooseRoom(el._id)}
-      >
-        {el.chatroom} - {el.username.length}
-      </h3>
-    );
-  });
+  const roomRender = useMemo(() => {
+    if (!room?.length) {
+      return <SkeletonLoading />;
+    }
+    return room.map((el, idx) => {
+      return (
+        <h3
+          key={el._id + idx}
+          className={cx("list-title", {
+            disabled: props.isChoosingRoom,
+            "list-title-choose": user.chatroom._id === el._id,
+          })}
+          onClick={() => onChooseRoom(el._id)}
+        >
+          {el.chatroom} - {el.username.length}
+        </h3>
+      );
+    });
+  }, [room, onChooseRoom, user.chatroom, props.isChoosingRoom]);
+
   return (
     <div className="chat__sidebar">
       <div className="sidebar-template">

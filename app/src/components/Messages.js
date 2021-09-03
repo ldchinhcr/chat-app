@@ -187,7 +187,7 @@ function Messages(props) {
     height: "100px",
     borderRadius: "8px",
     border: "1px solid gray",
-    backgroundColor: "antiquewhite",
+    backgroundColor: "aliceblue",
   };
 
   if (!currentRoom && !isChoosingRoom) {

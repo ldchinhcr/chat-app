@@ -1,4 +1,10 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, {
+  useEffect,
+  useState,
+  useRef,
+  useCallback,
+  useMemo,
+} from "react";
 import Content from "../components/Content";
 import Sidebar from "../components/Sidebar";
 import { makeStyles } from "@material-ui/core/styles";
@@ -39,15 +45,20 @@ function Chat(props) {
   const history = useHistory();
   const [isCollapsed, setIsCollapsed] = useState(true);
   const { isDesktop, isTablet, isMobile } = useReactResponsive();
-  const pageProps = { ...props, isChoosingRoom, setIsChoosingRoom, setIsCollapsed };
+  const pageProps = {
+    ...props,
+    isChoosingRoom,
+    setIsChoosingRoom,
+    setIsCollapsed,
+  };
 
-  const setHoldingShift = React.useCallback((e) => {
+  const setHoldingShift = useCallback((e) => {
     if (e.key === "Shift") {
       setIsHoldingShift(true);
     }
   }, []);
 
-  const unSetHoldingShift = React.useCallback(
+  const unSetHoldingShift = useCallback(
     (e) => {
       if (e.key === "Shift" && isHoldingShift) {
         setIsHoldingShift(false);
@@ -56,15 +67,19 @@ function Chat(props) {
     [isHoldingShift]
   );
 
-  const clickOutsideSidebar = React.useCallback((ev) => {
-    const actionElement = sidebarRef.current
-    const clickOnAction =
-      actionElement && (ev.target === actionElement || actionElement.contains(ev.target))
+  const clickOutsideSidebar = useCallback(
+    (ev) => {
+      const actionElement = sidebarRef.current;
+      const clickOnAction =
+        actionElement &&
+        (ev.target === actionElement || actionElement.contains(ev.target));
 
-    if (!clickOnAction && !isCollapsed) {
-      setIsCollapsed(true)
-    }
-  }, [isCollapsed])
+      if (!clickOnAction && !isCollapsed) {
+        setIsCollapsed(true);
+      }
+    },
+    [isCollapsed]
+  );
 
   useEffect(() => {
     window.addEventListener("keydown", setHoldingShift);
@@ -81,17 +96,19 @@ function Chat(props) {
     return () => window.removeEventListener("keydown", clickOutsideSidebar);
   }, [clickOutsideSidebar]);
 
+  const onChange = useCallback(
+    (e) => {
+      const emoji = getByNative(e.target.value);
+      if (emoji) {
+        setInput(emoji.native);
+      } else {
+        setInput(e.target.value);
+      }
+    },
+    [setInput]
+  );
 
-  const onChange = (e) => {
-    const emoji = getByNative(e.target.value);
-    if (emoji) {
-      setInput(emoji.native);
-    } else {
-      setInput(e.target.value);
-    }
-  };
-
-  const onHandleSubmit = React.useCallback(async () => {
+  const onHandleSubmit = useCallback(async () => {
     setIsRequesting(true);
     const obj = {
       user: { id: user._id, name: user.name },
@@ -111,7 +128,7 @@ function Chat(props) {
     }
   }, [user, input]);
 
-  const onSendLocation = React.useCallback(
+  const onSendLocation = useCallback(
     (e) => {
       e.preventDefault();
       setIsRequesting(true);
@@ -146,42 +163,54 @@ function Chat(props) {
     [user]
   );
 
-  const onToggleCollapsible = React.useCallback((e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsCollapsed(!isCollapsed);
-  }, [isCollapsed]);
-
-  function toggleEmojiPicker() {
-    setShowEmojiPicker(!showEmojiPicker);
-  }
-
-  function handleKeyPress(event) {
-    if (!isHoldingShift && event.key === "Enter") {
-      event.preventDefault();
-      onHandleSubmit();
-    }
-  }
-
-  function addEmoji(emoji) {
-    const text = `${input}${emoji.native}`;
-    setInput(text);
-    setShowEmojiPicker(false);
-  }
-
-  const triggerConfig = {
-    ":": {
-      dataProvider: (token) =>
-        emojiIndex.search(token).map((o) => ({
-          name: o.name,
-          native: o.native,
-        })),
-      component: ({ entity: { native, name } }) => (
-        <div>{`${name} ${native}`}</div>
-      ),
-      output: (item) => `${item.native}`,
+  const onToggleCollapsible = useCallback(
+    (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsCollapsed(!isCollapsed);
     },
-  };
+    [isCollapsed]
+  );
+
+  const toggleEmojiPicker = useCallback(() => {
+    setShowEmojiPicker(!showEmojiPicker);
+  }, [showEmojiPicker]);
+
+  const handleKeyPress = useCallback(
+    (event) => {
+      if (!isHoldingShift && event.key === "Enter") {
+        event.preventDefault();
+        onHandleSubmit();
+      }
+    },
+    [onHandleSubmit, isHoldingShift]
+  );
+
+  const addEmoji = useCallback(
+    (emoji) => {
+      const text = `${input}${emoji.native}`;
+      setInput(text);
+      setShowEmojiPicker(false);
+    },
+    [input]
+  );
+
+  const triggerConfig = useMemo(
+    () => ({
+      ":": {
+        dataProvider: (token) =>
+          emojiIndex.search(token).map((o) => ({
+            name: o.name,
+            native: o.native,
+          })),
+        component: ({ entity: { native, name } }) => (
+          <div>{`${name} ${native}`}</div>
+        ),
+        output: (item) => `${item.native}`,
+      },
+    }),
+    [emojiIndex]
+  );
 
   if (!user) {
     return (
@@ -204,23 +233,26 @@ function Chat(props) {
       {isDesktop || isTablet ? (
         <Sidebar {...pageProps} />
       ) : (
-        <div className={cx("collapsible-sidebar", { collapsed: isCollapsed })} ref={sidebarRef}>
+        <div
+          className={cx("collapsible-sidebar", { collapsed: isCollapsed })}
+          ref={sidebarRef}
+        >
           <span className="collapsible-icon" onClick={onToggleCollapsible}>
             {isCollapsed ? <ChevronRight /> : <ChevronLeft />}
           </span>
           <Sidebar {...pageProps} />
         </div>
       )}
-      <div className={cx("chat__main", { 'mobile-view': isMobile })}>
+      <div className={cx("chat__main", { "mobile-view": isMobile })}>
         <Content {...pageProps} />
-        {showEmojiPicker ? (
+        {showEmojiPicker && (
           <NimblePicker
             set="facebook"
             title="Pick an icon"
             data={data}
             onSelect={addEmoji}
           />
-        ) : null}
+        )}
         <div className="compose">
           <Button
             color="primary"

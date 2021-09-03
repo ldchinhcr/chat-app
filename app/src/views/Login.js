@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useHistory } from "react-router-dom";
 import TextField from "@material-ui/core/TextField";
 import { makeStyles } from "@material-ui/core/styles";
@@ -9,6 +9,17 @@ import Select from "@material-ui/core/Select";
 import { useSelector } from "react-redux";
 import socket from "../socket";
 import { SOCKET_EVENTS } from "../constants";
+
+const colors = [
+  "orange",
+  "red",
+  "purple",
+  "indigo",
+  "teal",
+  "amber",
+  "blueGrey",
+  "cyan",
+];
 
 const useStyles = makeStyles((theme) => ({
   formControl: {
@@ -23,24 +34,14 @@ const useStyles = makeStyles((theme) => ({
 export default function Login(props) {
   const classes = useStyles();
   let [isRequesting, setIsRequesting] = useState(false);
-  const colors = [
-    "orange",
-    "red",
-    "purple",
-    "indigo",
-    "teal",
-    "amber",
-    "blueGrey",
-    "cyan",
-  ];
-  const allroom = useSelector((state) => state.room);
+  const allRooms = useSelector((state) => state.room);
   const page = useSelector((state) => state.page);
   const loggedUser = useSelector((state) => state.user);
   const [isLoading, setIsLoading] = useState(false);
   const [user, setUser] = useState(null);
   const history = useHistory();
 
-  const onChange = React.useCallback(
+  const onChange = useCallback(
     (e) => {
       const name = e.target.name;
       const value = e.target.value;
@@ -52,22 +53,22 @@ export default function Login(props) {
     [user]
   );
 
-  React.useEffect(() => {
-    if (!allroom) {
+  useEffect(() => {
+    if (!allRooms) {
       setIsLoading(true);
     }
-    if (allroom) {
+    if (allRooms) {
       setIsLoading(false);
     }
-  }, [allroom]);
+  }, [allRooms]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (loggedUser) {
       history.push("/chat");
     }
   }, [loggedUser, history, isRequesting]);
 
-  const onSubmit = React.useCallback(
+  const onSubmit = useCallback(
     async (e) => {
       if (!user.chatroom || !user.username) {
         return
@@ -91,21 +92,21 @@ export default function Login(props) {
         console.error(err);
       }
     },
-    [colors, page, user]
+    [page, user]
   );
 
-  const roomToHtml = React.useMemo(() => {
+  const roomToHtml = useMemo(() => {
     if (isLoading) {
       return <div>Is Loading...</div>;
     }
-    return (allroom || []).map((item) => {
+    return (allRooms || []).map((item) => {
       return (
         <MenuItem value={item._id} key={item.chatroom}>
           {item.chatroom}
         </MenuItem>
       );
     });
-  }, [allroom, isLoading]);
+  }, [allRooms, isLoading]);
 
   return (
     <div className="centered-form">
