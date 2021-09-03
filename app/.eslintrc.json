@@ -1,0 +1,129 @@
+{
+    "parser": "@typescript-eslint/parser", // Specifies the ESLint parser
+    "extends": [
+      "react-app",
+      "plugin:@typescript-eslint/recommended"
+    ],
+    "plugins": [
+      "react",
+      "react-hooks"
+    ],
+    "ignorePatterns": ["!**/*"],
+    "parserOptions": {
+      "ecmaFeatures": {
+        "jsx": true
+      },
+      "ecmaVersion": 2018,
+      "sourceType": "module"
+    },
+    "env": {
+      "browser": true,
+      "node": true, // Allowing node global variables to be imported without require
+      "commonjs": true,
+      "es6": true,
+      "jest": true
+    },
+    "settings": {
+      "import/resolver": {
+        "node": {
+          "moduleDirectory": [
+            "node_modules",
+            "src/"
+          ],
+          "extensions": [
+            ".js",
+            ".jsx",
+            ".ts",
+            ".tsx"
+          ]
+        }
+      }
+    },
+    "rules": {
+      "import/no-named-as-default-member": "off",
+      "react/require-extension": "off",
+      "react/prefer-stateless-function": "off",
+      "react/jsx-filename-extension": "off",
+      "react/forbid-prop-types": "off",
+      "react/prop-types": "off",
+      "curly": "error",
+      "semi": [
+        "error",
+        "never"
+      ],
+      "comma-dangle": [
+        "error",
+        "never"
+      ],
+      "no-console": "off",
+      "space-before-function-paren": "off",
+      "max-len": [
+        "error",
+        {
+          "code": 135,
+          "tabWidth": 2,
+          "ignoreUrls": true,
+          "ignoreStrings": true,
+          "ignoreComments": true
+        }
+      ],
+      "no-continue": "off",
+      "consistent-return": "off",
+      "no-else-return": "off",
+      "array-bracket-spacing": "off",
+      "import/extensions": "off",
+      "import/no-unresolved": [
+        "error",
+        {
+          "ignore": [
+            "@base-monorepo"
+          ]
+        }
+      ],
+      "import/prefer-default-export": "off",
+      "array-callback-return": "off",
+      "no-underscore-dangle": "off",
+      "class-methods-use-this": "off",
+      "global-require": "off",
+      "arrow-body-style": "off",
+      "eol-last": "error",
+      "arrow-parens": [
+        "off",
+        "as-needed",
+        {
+          "requireForBlockBody": true
+        }
+      ],
+      "no-const-assign": "error",
+      "no-var": "error",
+      "prefer-arrow-callback": [
+        "error",
+        {
+          "allowNamedFunctions": false,
+          "allowUnboundThis": true
+        }
+      ],
+      "prefer-const": [
+        "error",
+        {
+          "destructuring": "any",
+          "ignoreReadBeforeAssign": true
+        }
+      ],
+      "no-trailing-spaces": "error",
+      "no-multiple-empty-lines": "error",
+      "no-use-before-define": "off",
+      "@typescript-eslint/explicit-module-boundary-types": "off",
+      "@typescript-eslint/no-empty-function": "off",
+      "no-case-declarations": "off",
+      "no-unused-vars": "off",
+      "@typescript-eslint/no-unused-vars": "off",
+      "@typescript-eslint/no-explicit-any": "off",
+      "require-atomic-updates": "off",
+      "react/no-unescaped-entities": "off",
+      "@typescript-eslint/no-use-before-define": "error",
+      "react/no-string-refs": "off",
+      "@typescript-eslint/ban-ts-comment": "off",
+      "@typescript-eslint/no-var-requires": "off"
+    }
+  }

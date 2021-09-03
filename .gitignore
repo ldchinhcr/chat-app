@@ -1,6 +1,6 @@
 
 # dependencies
-app/node_modules
+app/node_modules/
 app/.pnp
 app/.pnp.js
 
@@ -25,7 +25,7 @@ app/yarn-debug.log*
 app/yarn-error.log*
 
 #server
-server/node_modules
+server/node_modules/
 server/.env
 # Local Netlify folder
 .netlify

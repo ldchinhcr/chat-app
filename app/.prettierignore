@@ -1,0 +1,13 @@
+# Add files here to ignore them from prettier formatting
+
+/dist
+/coverage
+/tmp
+/out-tsc
+build/
+__snapshots__/
+node_modules/
+package-lock.json
+yarn.lock
+package.json
+.scss
