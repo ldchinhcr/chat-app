@@ -16,7 +16,7 @@
     "@webscopeio/react-textarea-autocomplete": "^4.6.3",
     "classnames": "^2.3.1",
     "emoji-mart": "^3.0.0",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.21",
     "moment": "^2.25.3",
     "prop-types": "^15.7.2",
     "react": "^16.13.1",
