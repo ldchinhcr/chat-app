@@ -1,0 +1,12 @@
+{
+  "name": "chat-app-project",
+  "version": "1.0.0",
+  "description": "Chat app make with express, node js, socketio",
+  "main": "index.js",
+  "scripts": {
+    "heroku-prebuild": "cd server && npm install",
+    "start": "cd server && npm start"
+  },
+  "author": "Chinh Le",
+  "license": "ISC"
+}
